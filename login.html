@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Roswal Business Hotel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f2f2f2;
+    }
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .dashboard {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .card {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .kpi {
+      font-size: 24px;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #003366;
+    }
+    canvas {
+      width: 100% !important;
+      height: auto !important;
+      max-height: 300px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #003366;
+      color: white;
+    }
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .login-box h2 {
+      margin-bottom: 20px;
+      color: #003366;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .login-box button {
+      background-color: #003366;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h2>Iniciar Sesión</h2>
+      <input type="text" id="usuario" placeholder="Usuario" />
+      <input type="password" id="clave" placeholder="Contraseña" />
+      <button onclick="iniciarSesion()">Ingresar</button>
+      <div class="error" id="error"></div>
+    </div>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <header>
+      <h1>Dashboard - Roswal Business Hotel</h1>
+    </header>
+
+    <div class="card">
+      <h3>Habitaciones Ocupadas</h3>
+      <div class="kpi" id="ocupadas">14</div>
+    </div>
+    <div class="card">
+      <h3>Habitaciones Disponibles</h3>
+      <div class="kpi" id="disponibles">26</div>
+    </div>
+    <div class="card">
+      <h3>Ingresos del Día</h3>
+      <div class="kpi" id="ingresos">S/ 3,400</div>
+    </div>
+    <div class="card">
+      <h3>Reservas Semanales</h3>
+      <canvas id="reservasChart"></canvas>
+    </div>
+    <div class="card">
+      <h3>Estado de Limpieza</h3>
+      <canvas id="limpiezaChart"></canvas>
+    </div>
+    <div class="card" style="grid-column: span 2">
+      <h3>Detalle de Reservas</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Habitación</th>
+            <th>Cliente</th>
+            <th>Tipo</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Estado</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>101</td><td>Juan Pérez</td><td>Particular</td><td>2025-06-14</td><td>2025-06-16</td><td>Ocupada</td><td>S/ 450</td></tr>
+          <tr><td>102</td><td>—</td><td>—</td><td>—</td><td>—</td><td>Disponible</td><td>—</td></tr>
+          <tr><td>103</td><td>Empresa ABC</td><td>Empresa</td><td>2025-06-16</td><td>2025-06-18</td><td>Reservada</td><td>S/ 820</td></tr>
+          <tr><td>104</td><td>María Salas</td><td>Particular</td><td>2025-06-16</td><td>2025-06-17</td><td>Ocupada</td><td>S/ 600</td></tr>
+          <tr><td>105</td><td>Global Corp</td><td>Empresa</td><td>2025-06-15</td><td>2025-06-19</td><td>Ocupada</td><td>S/ 1,200</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function iniciarSesion() {
+      const usuario = document.getElementById('usuario').value;
+      const clave = document.getElementById('clave').value;
+      const error = document.getElementById('error');
+
+      if (usuario === 'hotel' && clave === '1234') {
+        document.querySelector('.login-container').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'grid';
+      } else {
+        error.textContent = 'Usuario o contraseña incorrectos';
+      }
+    }
+
+    // Reservas semanales
+    const ctx1 = document.getElementById('reservasChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+        datasets: [{
+          label: 'Reservas',
+          data: [8, 10, 12, 11, 14, 15, 9],
+          backgroundColor: 'rgba(0, 51, 102, 0.2)',
+          borderColor: '#003366',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+
+    // Estado de limpieza
+    const ctx2 = document.getElementById('limpiezaChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: ['Limpias', 'En limpieza', 'Pendientes'],
+        datasets: [{
+          label: 'Estado',
+          data: [24, 8, 8],
+          backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  </script>
+</body>
+</html>
